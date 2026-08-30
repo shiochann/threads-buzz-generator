@@ -1,0 +1,1057 @@
+<title>Threadsバズ投稿ジェネレーター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fffcf3;
+    --paper-2:#faf5e4;
+    --ink:#16140d;
+    --ink-soft:#3a3628;
+    --muted:#79735c;
+    --line:#e8e0c4;
+    --yellow:#f3d94a;
+    --yellow-deep:#a98600;
+    --yellow-ink:#2a2308;
+    --card:#ffffff;
+    --shadow: 0 1px 2px rgba(22,20,13,.04), 0 8px 24px -12px rgba(22,20,13,.18);
+    --free:#2f6d4a;
+    --free-bg:#e7f3ea;
+    --paid:#8a5a12;
+    --paid-bg:#fbf0dc;
+    --radius: 18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#17160f;
+      --paper-2:#1d1c12;
+      --ink:#f4efdd;
+      --ink-soft:#d9d3ba;
+      --muted:#a49c7d;
+      --line:#35311f;
+      --yellow:#e9cf46;
+      --yellow-deep:#f3d94a;
+      --yellow-ink:#1a1607;
+      --card:#1f1e14;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.55);
+      --free:#7fcf9c;
+      --free-bg:#193c28;
+      --paid:#e7be74;
+      --paid-bg:#3a2c10;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#17160f;
+    --paper-2:#1d1c12;
+    --ink:#f4efdd;
+    --ink-soft:#d9d3ba;
+    --muted:#a49c7d;
+    --line:#35311f;
+    --yellow:#e9cf46;
+    --yellow-deep:#f3d94a;
+    --yellow-ink:#1a1607;
+    --card:#1f1e14;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.55);
+    --free:#7fcf9c;
+    --free-bg:#193c28;
+    --paid:#e7be74;
+    --paid-bg:#3a2c10;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Noto Sans JP","Zen Kaku Gothic New",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--yellow); color:var(--yellow-ink); }
+
+  .mono{ font-family:"JetBrains Mono",ui-monospace,monospace; }
+  code, .code{
+    font-family:"JetBrains Mono",ui-monospace,monospace;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.12em .45em;
+    font-size:.9em;
+    color:var(--ink-soft);
+  }
+  .code-copy{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:"JetBrains Mono",ui-monospace,monospace;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    border-radius:8px;
+    padding:.12em .6em .12em .7em;
+    font-size:.9em;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .code-copy:hover{ border-color:var(--yellow-deep); color:var(--ink); }
+  .code-copy:focus-visible{ outline:2px solid var(--yellow-deep); outline-offset:2px; }
+  .code-copy .copy-icon{ font-size:.85em; opacity:.6; }
+  .code-copy.copied{ border-color:var(--free); background:var(--free-bg); color:var(--free); }
+  h1,h2,h3{ text-wrap:balance; font-family:"Zen Kaku Gothic New",sans-serif; margin:0; }
+  a{ color:inherit; }
+  .visually-hidden{ position:absolute; width:1px;height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+
+  /* ---------- header ---------- */
+  header.top{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px;
+    padding:16px clamp(20px,4vw,48px);
+    background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .wordmark{
+    display:flex; align-items:baseline; gap:10px;
+    font-family:"Zen Kaku Gothic New",sans-serif;
+    font-weight:900;
+    letter-spacing:.01em;
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  .wordmark .mark{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:34px; height:34px; border-radius:50%;
+    background:var(--ink); color:var(--yellow);
+    overflow:hidden; flex-shrink:0;
+  }
+  .wordmark .mark img{ width:25px; height:25px; object-fit:contain; display:block; }
+  .wordmark .name{ font-size:17px; }
+  .wordmark .name b{ color:var(--yellow-deep); }
+
+  nav.top-nav{
+    display:flex; gap:4px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    min-width:0;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  }
+  nav.top-nav::-webkit-scrollbar{ display:none; }
+  nav.top-nav a{
+    text-decoration:none;
+    font-size:13px; font-weight:700;
+    color:var(--ink-soft);
+    padding:9px 14px;
+    border-radius:999px;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  nav.top-nav a:hover, nav.top-nav a:focus-visible{ background:var(--paper-2); color:var(--ink); }
+  nav.top-nav a:focus-visible{ outline:2px solid var(--yellow-deep); outline-offset:2px; }
+
+  @media (max-width:480px){
+    header.top{ padding:14px 18px; gap:10px; }
+    .wordmark .name{ font-size:15px; }
+    .wordmark .mark{ width:30px; height:30px; font-size:14px; }
+    nav.top-nav a{ padding:8px 10px; font-size:12px; }
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    padding:0 clamp(20px,4vw,48px);
+  }
+  .hero-inner{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap:40px;
+    align-items:center;
+    max-width:1180px;
+    margin:0 auto;
+    padding:clamp(48px,7vw,96px) 0 clamp(56px,8vw,110px);
+  }
+  .hero-wedge{
+    position:absolute; inset:0; z-index:1;
+    background:
+      linear-gradient(115deg, transparent 0 46%, var(--yellow) 46% 100%);
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:18px;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--yellow-deep); }
+
+  .hero h1{
+    font-size:clamp(2.4rem, 5vw, 3.6rem);
+    line-height:1.12;
+    font-weight:900;
+  }
+  .hero h1 .kicker{ font-size:.36em; font-weight:700; display:block; margin-bottom:.3em; color:var(--ink-soft); }
+  .hero h1 .big{ font-size:1.28em; }
+  .hero .eq{
+    margin-top:14px;
+    font-size:clamp(1.15rem, 2.3vw, 1.5rem);
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+  .hero .eq b{ color:var(--ink); font-weight:900; }
+
+  .badge-black{
+    display:inline-flex; align-items:center; gap:10px;
+    background:var(--ink); color:var(--paper);
+    font-weight:900; font-size:clamp(1.05rem,2vw,1.3rem);
+    padding:12px 22px;
+    border-radius:10px;
+    margin-top:28px;
+  }
+  .badge-black .sub{ font-size:.55em; font-weight:600; color:var(--yellow); }
+
+  .hero-actions{ margin-top:26px; display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-weight:700; font-size:14.5px;
+    padding:13px 22px;
+    border-radius:999px;
+    text-decoration:none;
+    border:1.5px solid var(--ink);
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn:focus-visible{ outline:2px solid var(--yellow-deep); outline-offset:2px; }
+  .btn-solid{ background:var(--ink); color:var(--paper); }
+  .btn-solid:hover{ background:var(--ink-soft); }
+  .btn-line{ background:transparent; color:var(--ink); }
+  .btn-line:hover{ background:var(--paper-2); }
+
+  /* ---------- install: zip download card ---------- */
+  .download-card{
+    position:relative;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+    flex-wrap:wrap;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    margin-bottom:28px;
+    box-shadow:var(--shadow);
+  }
+  .download-card::before{
+    content:"";
+    position:absolute; z-index:0; pointer-events:none;
+    inset:-60% -10% auto -10%; height:180%;
+    background:
+      radial-gradient(closest-side, color-mix(in srgb, var(--yellow) 55%, transparent) 0%, transparent 75%) 15% 30%/55% 100% no-repeat,
+      radial-gradient(closest-side, color-mix(in srgb, var(--free) 40%, transparent) 0%, transparent 75%) 85% 70%/50% 100% no-repeat;
+    filter:blur(6px);
+  }
+  .download-card > *{ position:relative; z-index:1; }
+  .download-card h3{ font-size:17px; margin-bottom:10px; }
+  .download-badges{ display:flex; gap:8px; flex-wrap:wrap; }
+  .dl-badge{
+    display:inline-flex; align-items:center;
+    font-size:12px; font-weight:700;
+    padding:4px 12px; border-radius:999px;
+    background:var(--free-bg); color:var(--free);
+  }
+  .dl-badge.neutral{ background:var(--paper-2); color:var(--ink-soft); border:1px solid var(--line); }
+  .download-cta{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+  .download-note{
+    font-size:12px; color:var(--muted); margin:0; text-align:right; max-width:240px;
+  }
+  .btn[aria-disabled="true"]{ opacity:.45; cursor:not-allowed; }
+  .btn[aria-disabled="true"]:hover{ transform:none; }
+  #downloadBtn{
+    background:linear-gradient(135deg, var(--yellow-deep), #c9791f);
+    color:#fff;
+    border-color:transparent;
+    font-size:15px;
+    padding:14px 24px;
+  }
+  #downloadBtn:hover{ filter:brightness(1.08); background:linear-gradient(135deg, var(--yellow-deep), #c9791f); }
+  #downloadBtn[aria-disabled="true"]{ background:var(--paper-2); color:var(--muted); }
+
+  /* fan of "post cards" graphic */
+  .fan{
+    position:relative;
+    height:min(60vw, 380px);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fan .card{
+    position:absolute;
+    width:190px; height:238px;
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:18px;
+    transform-origin:bottom center;
+    border:1px solid var(--line);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .fan .card .dot{ width:26px;height:26px;border-radius:50%;background:var(--yellow); margin-bottom:12px; }
+  .fan .card .ln{ height:8px; border-radius:4px; background:var(--line); margin-bottom:7px; }
+  .fan .card .ln:nth-child(2){ width:85%; }
+  .fan .card .ln:nth-child(3){ width:95%; }
+  .fan .card .ln:nth-child(4){ width:60%; }
+  .fan .card .tag{
+    margin-top:14px; display:inline-block;
+    font-size:10.5px; font-weight:700; letter-spacing:.04em;
+    color:var(--yellow-ink); background:var(--yellow);
+    padding:3px 8px; border-radius:6px;
+  }
+  .fan .c1{ transform:rotate(-14deg) translate(-118px, 6px); z-index:1; }
+  .fan .c2{ transform:rotate(-2deg) translate(0,-14px); z-index:3; }
+  .fan .c3{ transform:rotate(13deg) translate(118px, 6px); z-index:2; }
+  .fan:hover .c1{ transform:rotate(-18deg) translate(-130px, 0); }
+  .fan:hover .c2{ transform:rotate(-2deg) translate(0,-22px); }
+  .fan:hover .c3{ transform:rotate(17deg) translate(130px, 0); }
+
+  @media (max-width:860px){
+    .hero-inner{ grid-template-columns:1fr; }
+    .hero-wedge{ background:linear-gradient(180deg, transparent 0 62%, var(--yellow) 62% 100%); }
+    .fan{ order:-1; height:260px; }
+    .fan .card{ width:150px; height:190px; padding:14px; }
+    .fan .c1{ transform:rotate(-14deg) translate(-78px, 4px); }
+    .fan .c3{ transform:rotate(13deg) translate(78px, 4px); }
+  }
+
+  /* ---------- sections ---------- */
+  main{ max-width:880px; margin:0 auto; padding:0 clamp(20px,4vw,48px); }
+  section{ padding:clamp(52px,7vw,84px) 0; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+
+  .section-head{ margin-bottom:36px; }
+  .section-head .eyebrow{ margin-bottom:10px; }
+  .section-head h2{ font-size:clamp(1.6rem,3vw,2.15rem); font-weight:900; }
+  .section-head p{ color:var(--muted); font-size:15.5px; margin-top:10px; max-width:60ch; line-height:1.75; }
+
+  /* summary strip */
+  .summary-strip{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .summary-strip .item{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 18px; box-shadow:var(--shadow);
+  }
+  .summary-strip .num{ font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:600; color:var(--yellow-deep); }
+  .summary-strip h3{ font-size:16px; margin:10px 0 6px; font-weight:700; }
+  .summary-strip p{ font-size:13.5px; color:var(--muted); margin:0; line-height:1.65; }
+  @media (max-width:700px){ .summary-strip{ grid-template-columns:1fr; } }
+
+  /* step list */
+  .steps{ position:relative; }
+  .step{
+    position:relative;
+    display:grid;
+    grid-template-columns:52px 1fr;
+    gap:20px;
+    padding-bottom:34px;
+  }
+  .step:last-child{ padding-bottom:0; }
+  .step::before{ /* connecting line */
+    content:"";
+    position:absolute; left:25px; top:52px; bottom:0;
+    width:1.5px; background:var(--line);
+  }
+  .step:last-child::before{ display:none; }
+  .step .num{
+    width:52px; height:52px; border-radius:50%;
+    background:var(--paper-2); border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"JetBrains Mono",monospace; font-weight:600; font-size:16px;
+    color:var(--ink-soft);
+    flex-shrink:0;
+  }
+  .step h3{ font-size:17px; font-weight:700; margin-bottom:6px; }
+  .step p{ color:var(--muted); font-size:14.5px; line-height:1.75; margin:0 0 8px; }
+  .step .shot{
+    margin-top:12px; background:var(--paper-2); border:1px solid var(--line);
+    border-radius:12px; padding:14px 16px; font-size:13px; color:var(--ink-soft);
+  }
+
+  /* copy-paste prompt block */
+  .prompt-wrap{ position:relative; margin-top:22px; }
+  .prompt-box{
+    max-height:340px; overflow-y:auto;
+    background:var(--paper-2); border:1px solid var(--line); border-radius:14px;
+    padding:22px 20px; font-size:12.5px; line-height:1.85; color:var(--ink-soft);
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .copy-btn{
+    position:absolute; top:14px; right:14px;
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:"Noto Sans JP",sans-serif; font-weight:700; font-size:12.5px;
+    padding:9px 16px; border-radius:999px; border:1.5px solid var(--ink);
+    background:var(--ink); color:var(--paper); cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .copy-btn:hover{ transform:translateY(-1px); background:var(--ink-soft); }
+  .copy-btn.copied{ background:var(--free); border-color:var(--free); color:#fff; }
+  .info-note{
+    margin-top:18px; background:var(--paper-2); border:1px solid var(--line);
+    border-radius:12px; padding:16px 18px; font-size:13.5px; color:var(--ink-soft); line-height:1.8;
+  }
+
+  /* mini browser mockup: illustrates the compact merge-tool window at top-right */
+  .browser-mock{
+    position:relative;
+    background:var(--paper-2); border:1px solid var(--line); border-radius:16px;
+    padding:16px; aspect-ratio:16/10; overflow:hidden; box-shadow:var(--shadow);
+  }
+  .browser-mock .chrome-bar{ display:flex; gap:6px; margin-bottom:18px; }
+  .browser-mock .chrome-bar span{ width:9px; height:9px; border-radius:50%; background:var(--line); }
+  .browser-mock .page-line{ height:9px; border-radius:4px; background:var(--line); margin-bottom:10px; }
+  .browser-mock .mini-window{
+    position:absolute; top:16px; right:16px;
+    width:36%; min-width:132px;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    box-shadow:var(--shadow); padding:10px;
+  }
+  .browser-mock .mini-title{ font-size:10.5px; font-weight:800; margin-bottom:9px; color:var(--ink); }
+  .browser-mock .mini-field{ height:15px; border-radius:5px; background:var(--paper-2); border:1px solid var(--line); margin-bottom:7px; }
+  .browser-mock .mini-btn{ height:16px; border-radius:999px; background:var(--ink); margin-top:4px; width:58%; margin-left:auto; }
+  @media (max-width:600px){ .browser-mock .mini-window{ width:44%; } }
+
+  /* compare cards */
+  .compare{ display:grid; grid-template-columns:1.15fr 1fr; gap:18px; }
+  @media (max-width:700px){ .compare{ grid-template-columns:1fr; } }
+  .plan{
+    border-radius:var(--radius); padding:26px 24px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    box-shadow:var(--shadow);
+  }
+  .plan.rec{ border-color:var(--yellow-deep); position:relative; }
+  .plan .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:800; letter-spacing:.03em;
+    padding:5px 11px; border-radius:999px; margin-bottom:14px;
+  }
+  .pill.free{ background:var(--free-bg); color:var(--free); }
+  .pill.paid{ background:var(--paid-bg); color:var(--paid); }
+  .plan h3{ font-size:19px; font-weight:800; margin-bottom:6px; }
+  .plan .price{ font-family:"JetBrains Mono",monospace; font-size:26px; font-weight:600; margin:10px 0 4px; }
+  .plan .price small{ font-size:13px; font-weight:500; color:var(--muted); }
+  .plan ul{ list-style:none; margin:16px 0 0; padding:0; display:grid; gap:9px; }
+  .plan li{ font-size:14px; color:var(--ink-soft); padding-left:22px; position:relative; line-height:1.6; }
+  .plan li::before{ content:"—"; position:absolute; left:0; color:var(--muted); }
+
+  table.providers{ width:100%; min-width:480px; border-collapse:collapse; margin-top:28px; font-size:13.5px; }
+  table.providers th, table.providers td{ text-align:left; padding:11px 12px; border-bottom:1px solid var(--line); }
+  table.providers th{ font-weight:700; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  table.providers td b{ font-weight:700; }
+  .wrap-table{ overflow-x:auto; }
+
+  /* faq */
+  details.faq{
+    border-bottom:1px solid var(--line);
+    padding:18px 0;
+  }
+  details.faq summary{
+    cursor:pointer; font-weight:700; font-size:15px;
+    list-style:none; display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  details.faq summary::-webkit-details-marker{ display:none; }
+  details.faq summary::after{
+    content:"+"; font-size:20px; font-weight:400; color:var(--muted); flex-shrink:0;
+    transition:transform .2s ease;
+  }
+  details.faq[open] summary::after{ transform:rotate(45deg); }
+  details.faq p{ margin:12px 0 0; color:var(--muted); font-size:14px; line-height:1.75; }
+
+  footer{
+    padding:36px clamp(20px,4vw,48px) 60px;
+    max-width:880px; margin:0 auto;
+    color:var(--muted); font-size:12.5px; line-height:1.8;
+  }
+  footer a{ color:var(--yellow-deep); text-decoration:underline; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+
+<header class="top">
+  <div class="wordmark">
+    <span class="mark" aria-hidden="true"><img src="data:image/png;base64,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" alt="" /></span>
+    <span class="name">THREADS <b>BUZZ</b></span>
+  </div>
+  <nav class="top-nav" aria-label="ページ内ナビゲーション">
+    <a href="#install">インストール</a>
+    <a href="#setup">AI設定</a>
+    <a href="#merge-tool">合成ツール</a>
+    <a href="#cost">料金</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-wedge" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div>
+      <p class="eyebrow">Chrome拡張機能・導入ガイド</p>
+      <h1>
+        <span class="kicker">投稿は</span>
+        <span class="big">量産</span>する。
+      </h1>
+      <p class="eq">＝ <b>ペルソナAI</b>との壁打ちで作る</p>
+      <div class="badge-black">
+        はじめの一歩は<span class="sub">無料</span>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-solid" href="#install">今すぐ導入する</a>
+        <a class="btn btn-line" href="#setup">料金を先に見る</a>
+      </div>
+    </div>
+    <div class="fan" aria-hidden="true">
+      <div class="card c1"><div class="dot"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><span class="tag">PATTERN A</span></div>
+      <div class="card c2"><div class="dot"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><span class="tag">PATTERN B</span></div>
+      <div class="card c3"><div class="dot"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><span class="tag">PATTERN C</span></div>
+    </div>
+  </div>
+</section>
+
+<main>
+
+  <section id="overview">
+    <div class="section-head">
+      <p class="eyebrow">Overview</p>
+      <h2>3ステップだけ。</h2>
+      <p>6つの質問に答えるだけで専用ペルソナAIができ、そのまま投稿文の生成まで拡張機能の中だけで完結します。</p>
+    </div>
+    <div class="summary-strip">
+      <div class="item">
+        <span class="num">01</span>
+        <h3>拡張機能を入れる</h3>
+        <p>ZIPを展開して、Chromeに読み込むだけ。数分で終わります。</p>
+      </div>
+      <div class="item">
+        <span class="num">02</span>
+        <h3>AIをつなぐ</h3>
+        <p>Gemini（無料）のキーを1つ発行して貼り付けるだけ。カード登録は不要です。</p>
+      </div>
+      <div class="item">
+        <span class="num">03</span>
+        <h3>投稿を量産する</h3>
+        <p>質問に答える→バズ投稿を貼る→生成。あとはコピーして投稿するだけです。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="section-head">
+      <p class="eyebrow">Step 1 — Install</p>
+      <h2>拡張機能を読み込む</h2>
+      <p>Chromeウェブストアには公開していない「個人用の拡張機能」なので、フォルダを直接読み込む形でインストールします。パソコン操作が苦手でも大丈夫です。下の手順を上から順番にそのまま進めるだけで、5分ほどで完了します。</p>
+    </div>
+
+    <div class="download-card">
+      <div>
+        <h3>Threadsバズ投稿ジェネレーター</h3>
+        <div class="download-badges">
+          <span class="dl-badge">ver 1.1.0</span>
+          <span class="dl-badge neutral">約106KB</span>
+          <span class="dl-badge neutral">Chrome専用</span>
+        </div>
+      </div>
+      <div class="download-cta">
+        <a class="btn btn-solid" id="downloadBtn" href="threads-buzz-generator-1.1.0.zip" download>⬇ ZIPをダウンロード</a>
+        <p class="download-note" id="downloadNoteMsg">クリックでダウンロードできます</p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div>
+          <h3>ZIPファイルをダウンロード</h3>
+          <p>受け取った <code>threads-buzz-extension.zip</code> をダウンロードフォルダに保存します。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div>
+          <h3>展開（解凍）する</h3>
+          <p>ZIPをダブルクリック、または右クリック →「すべて展開」で解凍します。<code>threads-buzz-extension</code> というフォルダが出てきます。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div>
+          <h3>拡張機能の管理画面を開く</h3>
+          <p>Chromeのアドレスバーに <button type="button" class="code-copy" data-copy="chrome://extensions">chrome://extensions<span class="copy-icon">📋</span></button> と入力してEnter。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div>
+          <h3>デベロッパーモードをON</h3>
+          <p>画面右上のスイッチを切り替えます。ここをONにしないと次のボタンが出てきません。「開発者」という名前ですが難しい設定ではなく、ウェブストア以外の拡張機能を読み込むために必要なだけの、ただのスイッチです。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div>
+          <h3>「パッケージ化されていない拡張機能を読み込む」</h3>
+          <p>先ほど展開した <code>threads-buzz-extension</code> フォルダを選択します（フォルダの中を開く必要はありません。フォルダごと選んでください）。</p>
+          <div class="shot">✅ ツールバーに拡張機能のアイコンが表示されれば完了です。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup">
+    <div class="section-head">
+      <p class="eyebrow">Step 2 — Connect AI</p>
+      <h2>AIをつなぐ</h2>
+      <p>拡張機能アイコン →「AI連携の設定」から、使いたいAIとAPIキーを登録します。迷ったら無料のGeminiでOKです。</p>
+    </div>
+
+    <div class="info-note">
+      ⚠️ 設定画面は <b>STEP 1（APIキー）</b> と <b>STEP 2（ペルソナ作成）</b> の2段構えです。STEP 1だけ終えてもツールはまだ使えません。続けてSTEP 2で、ペルソナ（アカウント）を1つ以上作成・読み込みしてください。両方終わると設定画面の上部に「✅ 初期設定が完了しました」というバナーが出ます。<b>表示されたら、一度その設定画面を閉じてから、ツールバーの拡張機能アイコンを開き直してください。</b>
+    </div>
+
+    <div class="compare">
+      <div class="plan rec">
+        <span class="pill free">無料・おすすめ</span>
+        <h3>Google（Gemini）</h3>
+        <div class="price">¥0<small> / カード登録なし</small></div>
+        <ul>
+          <li>Googleアカウントでログインし「Get API key」で発行</li>
+          <li>Flash-Liteモデルに個人利用で十分な無料枠あり</li>
+          <li>普段の投稿づくりなら上限に達することはまず無い</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <span class="pill paid">有料</span>
+        <h3>Claude / GPT / OpenRouter</h3>
+        <div class="price">従量課金<small> / カード登録が必要</small></div>
+        <ul>
+          <li>生成した分だけ課金される仕組み</li>
+          <li>OpenRouterは1つのキーで複数モデルを試せる</li>
+          <li>より高性能なモデルを使いたい場合の選択肢</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wrap-table">
+    <table class="providers">
+      <thead>
+        <tr><th>プロバイダー</th><th>取得先</th><th>備考</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Gemini</b></td><td class="mono">aistudio.google.com</td><td>無料・カード不要</td></tr>
+        <tr><td><b>OpenRouter</b></td><td class="mono">openrouter.ai</td><td>要チャージ・一部無料モデルあり</td></tr>
+        <tr><td><b>Anthropic</b></td><td class="mono">console.anthropic.com</td><td>要クレジットカード</td></tr>
+        <tr><td><b>OpenAI</b></td><td class="mono">platform.openai.com</td><td>要クレジットカード</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 style="margin-top:44px; font-size:17px; font-weight:800;">🔑 Gemini APIキーの取り方（無料・5分）</h3>
+    <div class="steps" style="margin-top:24px;">
+      <div class="step">
+        <div class="num">1</div>
+        <div>
+          <h3>Google AI Studioを開く</h3>
+          <p><button type="button" class="code-copy" data-copy="aistudio.google.com">aistudio.google.com<span class="copy-icon">📋</span></button> にアクセスし、いつも使っているGoogleアカウントでログインします。初回は利用規約の確認が出ることがあるので、内容を確認して同意します。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div>
+          <h3>「Get API key」を開く</h3>
+          <p>ログイン後、左側のメニュー（スマホは上部メニュー）にある<b>「Get API key」</b>または<b>「API keys」</b>という項目をクリックします。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div>
+          <h3>「Create API key」をクリック</h3>
+          <p>画面に出てくる<b>「Create API key」</b>ボタンを押します。プロジェクトを選ぶ画面が出た場合は、特にこだわりがなければ一番上の<b>「Default Gemini Project」</b>を選べばOKです（無料枠での個人利用なら、どのプロジェクトを選んでも動作に違いはありません）。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div>
+          <h3>発行されたキーをコピー</h3>
+          <p>英数字の文字列（<code>AIza...</code>のような形式）が表示されるので、コピーします。<b>この画面を閉じると再表示できない場合がある</b>ので、その場でコピーしておくのが安全です。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div>
+          <h3>拡張機能に貼り付けて保存</h3>
+          <p>拡張機能の「AI連携の設定」画面に戻り、プロバイダーで<b>Google（Gemini）</b>を選んだ状態で、APIキー欄にペースト→「接続テスト」→「保存」の順に進めば完了です。</p>
+          <div class="shot">💡 キーは他人に見せたり、SNSやチャットにそのまま貼ったりしないでください。他人に使われると、あなたの無料枠が消費されてしまいます。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="merge-tool">
+    <div class="section-head">
+      <p class="eyebrow">Shortcut</p>
+      <h2>投稿を合成する（コンパクトツール）</h2>
+      <p>テーマ選びのやり取りをせず、2つの投稿を貼るだけで新しい投稿を1本その場で作りたいときのショートカットです。拡張機能アイコン →「🧩 2つの投稿を合成する」を押すと、別ウィンドウやタブは開かず、<b>今見ているページの右上にそのまま浮かんで</b>コンパクトなツールが表示されます。もう一度押すか「✕」で閉じられます。</p>
+    </div>
+
+    <div class="browser-mock" aria-hidden="true">
+      <div class="chrome-bar"><span></span><span></span><span></span></div>
+      <div class="page-line" style="width:68%"></div>
+      <div class="page-line" style="width:52%"></div>
+      <div class="page-line" style="width:78%"></div>
+      <div class="page-line" style="width:38%"></div>
+      <div class="page-line" style="width:60%"></div>
+      <div class="mini-window">
+        <div class="mini-title">🧩 投稿を合成</div>
+        <div class="mini-field"></div>
+        <div class="mini-field"></div>
+        <div class="mini-btn"></div>
+      </div>
+    </div>
+
+    <div class="steps" style="margin-top:36px;">
+      <div class="step">
+        <div class="num">1</div>
+        <div><h3>構成・型を借りたい投稿を貼る</h3><p>フックの言い回し・箇条書きの数・締め方など「型」を参考にしたい投稿を貼り付けます。</p></div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div><h3>内容・ネタを借りたい投稿を貼る</h3><p>使いたい情報・エピソード・数字など「中身」がある投稿を貼り付けます。</p></div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div><h3>合成する</h3><p>①の型に②の中身を差し込んだ新しい投稿が1本その場で生成されます。複数アカウント登録時は、使うペルソナもここで選べます。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="persona-prompt">
+    <div class="section-head">
+      <p class="eyebrow">Optional</p>
+      <h2>外部のAIでペルソナを作る（コピペ用）</h2>
+      <p>ペルソナ設定は、最初に一度だけ事前に作っておく必要があります。普段使っている claude.ai / ChatGPT / Gemini など好きなAIチャットに、下のプロンプトをそのままコピーして貼り付けてください。質問に答えると、拡張機能と全く同じ形式の「ペルソナ設定」が出力されます。</p>
+    </div>
+    <div class="prompt-wrap">
+      <button class="copy-btn" id="copyPersonaPromptBtn" type="button">📋 コピー</button>
+      <pre class="mono prompt-box" id="personaPromptText">あなたはSNS発信者向けのペルソナ設計アシスタントです。
+これから6つの質問をしますので、1つずつ答えていきます。
+すべての回答が終わったら、追加の説明や前置きは一切書かず、必ず下記の【出力フォーマット】だけをそのまま出力してください。
+
+【質問（1つずつ聞いてください）】
+Q1. あなたの実績や権威性を教えてください。（例：スキンケア歴10年、3人育児しながら-15kg達成。数字が入るとベストです）
+Q2. 誰に向けて発信しますか？（例：肌荒れに悩む20〜30代の女性）
+Q3. Threadsでの収益モデルを教えてください。（A.アフィリエイト専門／B.コンテンツ販売専門／C.アフィリ＋コンテンツ販売／D.まだ決めていない）
+Q4. 販売している（または予定の）商品・コンテンツを教えてください。（なければ「なし」でOK）
+Q5. どんなキャラクター・口調で発信しますか？（例：関西弁混じり、丁寧語ベースなど）
+Q6. 投稿で使える具体的な数字を教えてください。（フォロワー数、継続年数、実績数など思いつく限り）
+
+Q1から順に1つずつ私に質問してください。全問の回答が終わったら、名前・肩書き／事業内容・ジャンル／メイン商材・テーマ／絶対NGワード／CTA設定などは回答内容から自然に推測して埋めたうえで、下のテンプレートの[　]の部分だけを埋めて、テンプレート全体（見出しや記号もすべて含む）をそのまま出力してください。テンプレートの[　]以外の部分は一切変更しないでください。
+
+注意：下の【出力フォーマット（ここから）】〜【出力フォーマット（ここまで）】の中身（STEP1・STEP2の指示も含む）は、そのままコピーして出力する「テンプレートの中身」です。あなたが今この場でテーマ提案や投稿作成を実行する必要はありません。あくまで[　]を埋めてそのまま出力するだけです。
+
+【出力フォーマット（ここから）】
+
+あなたはThreadsのバズ投稿専門ライターです。
+以下のペルソナ・ルールに従って、渡された元投稿を書き直してください。
+2ステップで進めます。必ずSTEP1の回答後に止まり、選択を待ってください。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+発信者プロフィール
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+・名前・肩書き：[回答から推測して記入]
+・事業内容・ジャンル：[回答から推測して記入]
+・実績・数字：[Q1の回答をもとに記入]
+・メイン商材・テーマ：[回答から推測して記入]
+・ターゲット読者：[Q2の回答をもとに記入]
+・収益モデル：[Q3の回答をもとに記入]
+・販売コンテンツ・商品：[Q4の回答をもとに記入]
+・口調・キャラクター：[Q5の回答をもとに記入]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+使える数字リスト
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Q6の回答を箇条書きで記入。なければ「特になし」]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+絶対NGワード
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ジャンル・収益モデルから自然に推測して記入。なければ「特になし」]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CTA設定
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+・フォロー誘導文：[ジャンルに合わせて自然な誘導文を1つ作成。使わない場合は「（未使用）」]
+・オプチャ/LINE誘導文：[ジャンルに合わせて自然な誘導文を1つ作成。使わない場合は「（未使用）」]
+CTAは1つだけ。両方入れない。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+参照情報について
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+上記プロフィール・数字リストをもとに投稿を作成する。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ 最重要：変換の基本思想
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+元投稿は「設計図」。自分の情報は「素材」。
+設計図を崩さず、素材を差し込む作業がこのプロンプトのすべて。
+自分らしさを出そうとして設計図を崩すのは絶対にNG。
+口調・数字・エピソードが豊富でも、元投稿の型が最優先。
+
+【ロック項目（絶対に変えてはいけない）】
+・冒頭フックの構文・リズム：構文・句読点・改行位置をそのまま維持する
+・箇条書きの数：元投稿が4項目なら4項目。絶対に増減しない
+・箇条書きの並び順の論理：「大→小」「原因→結果」などの論理順を維持する
+・締めの構文とリズム：「↓」の使い方・余韻の残し方・最終行の文字数感
+・対比・煽り・ストーリーの流れ：対比や展開があれば、その流れは崩さない
+・1文の長さ感：短文主体なら短文のまま。長文主体なら長文のまま
+
+【スワップ項目（置き換えていい要素）】
+・各箇条書きの中身 → 自分のジャンル・事業ネタ
+・固有名詞 → 自分のサービス名・商材名など
+・数字 → 上記「使える数字リスト」から
+・ジャンル用語 → 自分のジャンルに合う言葉に変換
+
+【変換作業のセルフチェック】
+□ 冒頭フックの構文・句読点・改行位置は元投稿と同じか
+□ 箇条書きの数は元投稿と同じか
+□ 締めのリズム・「↓」の使い方は元投稿と同じか
+□ 1文の長さ感は元投稿と揃っているか
+□ 設計図が崩れていたら書き直す
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+口調・文体ルール
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+上記プロフィールの「口調・キャラクター」に合わせて書く。
+・話し言葉ベース（書き言葉・丁寧すぎる文章はNG）
+・「w」を自然に使う（多用しない）
+・短文。1文が長くなりすぎない
+・飾らない。リアルな感情が出る
+・ライター臭・丁寧すぎる文章は絶対NG
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+伸びやすい言い回しパターン（スワップ箇所にのみ使う）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+・誇張表現：「ビビるほど〜」「えぐいことが〜」「マジで〜」「ヤバい」
+・命令語尾：「〜しろ」「〜するな」「〜やれ」「〜しといて」
+・笑い：「ww」「w」（多用しない。1〜2個が自然）
+・損失回避：「〜はマジでもったいない」「〜で損してるかもしれんぞ」
+・簡易性：「これだけでいい」「これだけやれ」「1個だけやれ」
+・自己開示：「ぶっちゃけると」「正直に言う」「俺の場合は」
+・日常リアル描写：「朝起きたら〜してた」「寝る前に〜した」
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+バズ構成ルール
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 具体的な数字を必ず1つ以上入れる
+2. 1投稿1メッセージ。詰め込まない
+3. 最後に自然なCTA（フォロー・オプチャ誘導）を入れてもよい
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1：テーマ提案（ここで必ず止まる）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+元投稿を読み、以下を同時に行う。
+1. プロフィール情報をもとに相性のいいテーマを考える
+2. 以下のテーマ軸から組み合わせて候補を7〜8個提案する
+
+【テーマ軸】
+・損失回避：「やらないと損」「知らないと置いてかれる」
+・簡易性：「これだけでいい」「1個だけやれ」
+・新規性：「ほとんどの人が知らない」「まだ誰もやってない」
+・意外性・常識破壊：「普通と逆のことをやってる」
+・社会的証明：「月商○○万の自分がやってること」
+・共感・自己開示：「昔の自分に言いたい」「失敗したからこそ言える」
+・好奇心・ティザー：「これ知ってる人いる？」「ぶっちゃけると」
+
+【出力形式（STEP1）】
+
+【投稿傾向メモ】
+・伸びてる角度：
+・まだやってない角度：
+
+【テーマ候補】
+① [軸] タイトル
+→ フック例：「〜〜〜」
+→ 使うエピソード/数字：
+→ 一言メモ：
+②〜⑧（以下同様）
+
+提案後、「どれにしますか？複数選んでもOKです」と聞いて止まる。
+STEP2には絶対に進まない。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2：投稿作成（選択後に実行）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+選ばれたテーマで投稿を2〜3本作る。
+
+【作成手順（必ず守る）】
+1. 元投稿の「ロック項目」を書き出す
+2. ロック項目を骨格として固定する
+3. スワップ項目だけを自分のネタに置き換える
+4. セルフチェックを実施し、崩れがあれば修正する
+
+必ず確定したプロフィールの実数字・エピソードを1つ以上差し込む。
+伸びてる言い回しパターンはスワップ箇所にのみ使う。
+
+【出力形式（STEP2）】
+
+【元投稿から抽出したロック項目】
+・冒頭フック構文：
+・箇条書き数：○個
+・締めの構文：
+
+【パターンA】
+（投稿本文）
+
+【パターンB】
+（投稿本文）
+
+【パターンC】
+（投稿本文）※任意
+
+【元投稿から活かした構成・表現】
+（1〜3行）
+
+【使ったエピソード/数字】
+（どの情報を使ったか）
+
+【3本の中でのおすすめ】
+（どれが一番バズりそうか、理由も一言で）
+
+【出力フォーマット（ここまで）】
+
+上記のテンプレートを出力したら、あなたの作業はそこで完了です。続けてテーマ提案（STEP1）や投稿の作成（STEP2）を始める必要はありません。それらは、この出力結果を拡張機能に読み込ませたあとで、拡張機能の中で行われます。</pre>
+    </div>
+    <div class="info-note">
+      コピーしたら claude.ai / ChatGPT / aistudio.google.com などに貼り付けて質問に回答 →
+      最後に出てきた出力結果をコピーし、拡張機能の「AI連携の設定」→「🗂 アカウント管理」→「ペルソナ設定ファイルを読み込む」に貼り付ければ、新しいアカウントとして登録できます。<br>
+      ⚠️ 外部のAIチャットでできるのは、ここまで（ペルソナ設定を作るところまで）です。テーマ提案や投稿を2〜3パターン生成してワンクリックでコピーする機能は、拡張機能の中でのみ使えます。
+    </div>
+  </section>
+
+  <section id="cost">
+    <div class="section-head">
+      <p class="eyebrow">Cost</p>
+      <h2>お金の話。</h2>
+      <p>拡張機能そのものは無料です。かかる可能性があるのは、選んだAIプロバイダーの利用料だけです。</p>
+    </div>
+    <p style="color:var(--ink-soft); font-size:14.5px; line-height:1.8;">
+      <b>Geminiを選べば、実質ずっと無料</b>で使えます（無料枠にはレート制限がありますが、個人の投稿づくりで使い切ることはほぼありません）。<br>
+      Claude・GPT・OpenRouterを選んだ場合は、生成のたびに<b>あなた自身のアカウントに従量課金</b>されます（目安：投稿1回あたり数円〜数十円）。この拡張機能や開発者が料金を仲介・請求することはありません。
+    </p>
+  </section>
+
+  <section id="faq">
+    <div class="section-head">
+      <p class="eyebrow">FAQ</p>
+      <h2>よくある質問</h2>
+    </div>
+
+    <details class="faq" open>
+      <summary>データはどこに保存されますか？</summary>
+      <p>APIキーやプロフィールは、このChromeにだけ保存されます（<code>chrome.storage.local</code>）。開発者やAnthropicには送信されません。入力内容は、あなたが選んだAIプロバイダーにのみ直接送られます。</p>
+    </details>
+    <details class="faq">
+      <summary>Chromeウェブストアには公開されていないの？</summary>
+      <p>はい。これは個人利用のための「未パッケージの拡張機能」です。フォルダを直接読み込む形でのみ使えます。</p>
+    </details>
+    <details class="faq">
+      <summary>PDFのアップロードはできますか？</summary>
+      <p>自動読み取りには対応していません。PDFの中身はテキストとしてコピーし、入力欄に貼り付けてください。</p>
+    </details>
+    <details class="faq">
+      <summary>読み込み時にエラーが出ます</summary>
+      <p>ZIPファイルのまま読み込もうとしていないか確認してください。「パッケージ化されていない拡張機能を読み込む」は、解凍済みのフォルダを選ぶ必要があります。</p>
+    </details>
+    <details class="faq">
+      <summary>複数のSNSアカウントを運用しています。使い分けできますか？</summary>
+      <p>できます。「AI連携の設定」の「🗂 アカウント管理」で、アカウントごとにペルソナを作成・名前をつけて保存でき、ツールを開くときにどのアカウントを使うか選べます。</p>
+    </details>
+    <details class="faq">
+      <summary>接続テストで「is no longer available（このモデルは使えません）」と出ます</summary>
+      <p>Googleが無料モデルを入れ替えたときに出るエラーです。エラーメッセージの中に「代わりにこのモデルを使ってください」という案内（例：<code class="mono">gemini-3.5-flash-lite</code>）が書かれているので、そのモデル名を設定画面の「モデル名」欄にコピーして入力し、再度「接続テスト」→「保存」してください。</p>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <p>Threads バズ投稿ジェネレーター ／ 個人利用の未パッケージChrome拡張機能です。</p>
+  <p>元の着想：<a href="https://utage-system.com/p/DsyFfxXVRBq3" target="_blank" rel="noopener">Threadsバズ投稿プロンプト｜セットアップツール</a></p>
+</footer>
+
+<script>
+  (function(){
+    function fallbackCopy(text, cb){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb();
+    }
+    function copyText(text, cb){
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(cb, function(){ fallbackCopy(text, cb); });
+      } else {
+        fallbackCopy(text, cb);
+      }
+    }
+
+    var btn = document.getElementById('copyPersonaPromptBtn');
+    var box = document.getElementById('personaPromptText');
+    if (btn && box) {
+      btn.addEventListener('click', function(){
+        copyText(box.textContent, function(){
+          var orig = btn.textContent;
+          btn.textContent = '✅ コピーしました';
+          btn.classList.add('copied');
+          setTimeout(function(){
+            btn.textContent = orig;
+            btn.classList.remove('copied');
+          }, 1600);
+        });
+      });
+    }
+
+
+    // 「chrome://extensions」などの、その場でコピーして使う短いコード片
+    document.querySelectorAll('.code-copy').forEach(function(chip){
+      var icon = chip.querySelector('.copy-icon');
+      chip.addEventListener('click', function(){
+        copyText(chip.dataset.copy || chip.textContent, function(){
+          var origIcon = icon ? icon.textContent : '';
+          if (icon) icon.textContent = '✅';
+          chip.classList.add('copied');
+          setTimeout(function(){
+            if (icon) icon.textContent = origIcon;
+            chip.classList.remove('copied');
+          }, 1400);
+        });
+      });
+    });
+  })();
+</script>
+
