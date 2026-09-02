@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>OGP</title>
+<!--
+  リンクプレビュー用画像の元データ。
+  QuickLookは正方形で書き出すので、1200×1200で作り、
+  中央の630pxの帯だけを切り出して1200×630のOGP画像にする。
+  （中央の帯からはみ出す位置に文字を置かないこと）
+
+  再生成:  bash make-ogp.sh
+  外部フォントは読み込めないので、システムのフォントだけで組んでいる。
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 1200px; }
+  body {
+    background: #fffcf3;
+    color: #16140d;
+    font-family: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* サイト本体と同じ、黄色の斜め帯 */
+  .wedge {
+    position: absolute; inset: 0;
+    background: linear-gradient(115deg, transparent 0 52%, #f3d94a 52% 100%);
+  }
+
+  /* 切り出される中央の帯（285px〜915px）だけを使う */
+  .band {
+    position: absolute; left: 0; right: 0;
+    top: 285px; height: 630px;
+    padding: 0 96px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .eyebrow {
+    font-size: 27px; font-weight: 700; letter-spacing: .14em;
+    color: #3a3628; margin-bottom: 24px;
+  }
+  h1 { font-size: 92px; font-weight: 900; line-height: 1.1; letter-spacing: .01em; }
+  h1 .big { font-size: 1.24em; }
+  .eq { margin-top: 22px; font-size: 36px; font-weight: 700; color: #3a3628; }
+  .badge {
+    margin-top: 36px; align-self: flex-start;
+    background: #16140d; color: #fffcf3;
+    font-size: 28px; font-weight: 900;
+    padding: 16px 30px; border-radius: 14px;
+  }
+  .badge span { color: #f3d94a; }
+</style>
+</head>
+<body>
+  <div class="wedge"></div>
+  <div class="band">
+    <div class="eyebrow">CHROME 拡張機能・導入ガイド</div>
+    <h1>投稿は<span class="big">量産</span>する。</h1>
+    <div class="eq">＝ ペルソナAIとの壁打ちで作る</div>
+    <div class="badge">Threadsバズ投稿ジェネレーター<span>／無料</span></div>
+  </div>
+</body>
+</html>

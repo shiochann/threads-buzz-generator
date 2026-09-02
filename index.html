@@ -1,4 +1,36 @@
-<title>Threadsバズ投稿ジェネレーター</title>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- 購入者向けの配布ページなので、検索には出さない -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+
+<title>Threadsバズ投稿ジェネレーター｜ダウンロードと導入ガイド</title>
+<meta name="description" content="ペルソナAIと壁打ちしてThreadsの投稿を量産するChrome拡張「Threadsバズ投稿ジェネレーター」のダウンロードと導入手順。">
+
+<!-- リンクを送ったときのプレビュー。
+     指定しないとページ内の最初の画像が勝手に使われるので、必ず指定する。
+     画像は bash make-ogp.sh で作り直せる。 -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shiochann.github.io/threads-buzz-generator/">
+<meta property="og:site_name" content="Threadsバズ投稿ジェネレーター">
+<meta property="og:title" content="Threadsバズ投稿ジェネレーター｜ダウンロードと導入ガイド">
+<meta property="og:description" content="6つの質問に答えるだけで専用ペルソナAIができ、そのまま投稿文の生成まで拡張機能の中で完結するChrome拡張。">
+<meta property="og:image" content="https://shiochann.github.io/threads-buzz-generator/assets/img/ogp.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Threadsバズ投稿ジェネレーター｜ダウンロードと導入ガイド">
+<meta name="twitter:description" content="6つの質問に答えるだけで専用ペルソナAIができ、そのまま投稿文の生成まで完結するChrome拡張。">
+<meta name="twitter:image" content="https://shiochann.github.io/threads-buzz-generator/assets/img/ogp.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icon/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icon/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/icon/apple-touch-icon.png">
+<meta name="theme-color" content="#fffcf3">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -477,6 +509,8 @@
     *{ transition:none !important; animation:none !important; }
   }
 </style>
+</head>
+<body>
 
 <header class="top">
   <div class="wordmark">
@@ -556,13 +590,13 @@
       <div>
         <h3>Threadsバズ投稿ジェネレーター</h3>
         <div class="download-badges">
-          <span class="dl-badge">ver 1.1.0</span>
+          <span class="dl-badge">ver 1.2.0</span>
           <span class="dl-badge neutral">約106KB</span>
           <span class="dl-badge neutral">Chrome専用</span>
         </div>
       </div>
       <div class="download-cta">
-        <a class="btn btn-solid" id="downloadBtn" href="threads-buzz-generator-1.1.0.zip" download>⬇ ZIPをダウンロード</a>
+        <a class="btn btn-solid" id="downloadBtn" href="download/threads-buzz-generator.zip" download>⬇ ZIPをダウンロード</a>
         <p class="download-note" id="downloadNoteMsg">クリックでダウンロードできます</p>
       </div>
     </div>
@@ -572,14 +606,15 @@
         <div class="num">1</div>
         <div>
           <h3>ZIPファイルをダウンロード</h3>
-          <p>受け取った <code>threads-buzz-extension.zip</code> をダウンロードフォルダに保存します。</p>
+          <p>上のボタンから <code>threads-buzz-generator.zip</code> をダウンロードフォルダに保存します。</p>
         </div>
       </div>
       <div class="step">
         <div class="num">2</div>
         <div>
           <h3>展開（解凍）する</h3>
-          <p>ZIPをダブルクリック、または右クリック →「すべて展開」で解凍します。<code>threads-buzz-extension</code> というフォルダが出てきます。</p>
+          <p>ZIPをダブルクリック、または右クリック →「すべて展開」で解凍します。<code>threads-buzz-generator</code> というフォルダが出てきます。</p>
+          <div class="shot">📁 開くと <code>manifest.json</code> などのファイルと <code>icons</code> フォルダが並んでいます。<b>これで正解です。</b>この中にもうひとつフォルダが入っている必要はありません。</div>
         </div>
       </div>
       <div class="step">
@@ -600,7 +635,8 @@
         <div class="num">5</div>
         <div>
           <h3>「パッケージ化されていない拡張機能を読み込む」</h3>
-          <p>先ほど展開した <code>threads-buzz-extension</code> フォルダを選択します（フォルダの中を開く必要はありません。フォルダごと選んでください）。</p>
+          <p>先ほど展開した <code>threads-buzz-generator</code> フォルダを選択します（フォルダの中を開く必要はありません。フォルダごと選んでください）。</p>
+          <div class="shot">🎯 迷ったときの目印は「<code>manifest.json</code> が直接入っているフォルダ」です。そのフォルダを選べば必ず読み込めます。</div>
           <div class="shot">✅ ツールバーに拡張機能のアイコンが表示されれば完了です。</div>
         </div>
       </div>
@@ -725,12 +761,18 @@
       </div>
       <div class="step">
         <div class="num">2</div>
-        <div><h3>内容・ネタを借りたい投稿を貼る</h3><p>使いたい情報・エピソード・数字など「中身」がある投稿を貼り付けます。</p></div>
+        <div><h3>内容・ネタを借りたい投稿を貼る</h3><p>使いたい情報・エピソード・数字など「中身」がある投稿を貼り付けます。<b>できあがる投稿の中身は、こちらがベースになります。</b></p></div>
       </div>
       <div class="step">
         <div class="num">3</div>
         <div><h3>合成する</h3><p>①の型に②の中身を差し込んだ新しい投稿が1本その場で生成されます。複数アカウント登録時は、使うペルソナもここで選べます。</p></div>
       </div>
+    </div>
+
+    <div class="info-note">
+      💡 <b>合成でのペルソナの効き方（ver 1.2.0で変更）</b><br>
+      合成では、ペルソナから使うのは<b>キャラクター・話し方だけ</b>です。実績・数字・商材名・ターゲット設定・CTA（フォロー誘導やLINE誘導）は持ち込まれず、②に書かれていない数字が足されることもありません。<br>
+      自分の実績や商材を絡めた投稿を作りたいときは、合成ツールではなく通常の投稿生成（テーマ提案→投稿作成）を使ってください。
     </div>
   </section>
 
@@ -967,6 +1009,14 @@ STEP 2：投稿作成（選択後に実行）
     </div>
 
     <details class="faq" open>
+      <summary>解凍しても <code>threads-buzz-extension</code> というフォルダが見つかりません</summary>
+      <p>そのフォルダ名は旧バージョンのもので、現在配布中のZIPは解凍すると <code>threads-buzz-generator</code> という名前のフォルダになります。中身が <code>manifest.json</code> などのファイルと <code>icons</code> フォルダだけ、という状態で<b>正解</b>です。手順5では、その <code>threads-buzz-generator</code> フォルダを（中を開かずに）そのまま選択してください。</p>
+    </details>
+    <details class="faq">
+      <summary>フォルダを選んでも「マニフェストファイルがありません」と出ます</summary>
+      <p>ひとつ上、またはひとつ下の階層のフォルダを選んでいる可能性があります。Windowsの「すべて展開」では、同じ名前のフォルダが二重にできることがあります。<b><code>manifest.json</code> が直接入っているフォルダ</b>を選び直してください。</p>
+    </details>
+    <details class="faq">
       <summary>データはどこに保存されますか？</summary>
       <p>APIキーやプロフィールは、このChromeにだけ保存されます（<code>chrome.storage.local</code>）。開発者やAnthropicには送信されません。入力内容は、あなたが選んだAIプロバイダーにのみ直接送られます。</p>
     </details>
@@ -1055,3 +1105,5 @@ STEP 2：投稿作成（選択後に実行）
   })();
 </script>
 
+</body>
+</html>
